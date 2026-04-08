@@ -1,0 +1,146 @@
+--// HoaiNam Hub - Clean Axel Style
+
+repeat task.wait() until game:IsLoaded()
+
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "HoaiNamHub"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+-- Main
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 520, 0, 320)
+main.Position = UDim2.new(0.3, 0, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(18,18,18)
+main.Active = true
+main.Draggable = true
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
+
+-- Sidebar
+local sidebar = Instance.new("Frame", main)
+sidebar.Size = UDim2.new(0, 130, 1, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
+
+-- Title
+local title = Instance.new("TextLabel", sidebar)
+title.Size = UDim2.new(1,0,0,40)
+title.Text = "HoaiNam Hub"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+
+-- Content
+local content = Instance.new("Frame", main)
+content.Size = UDim2.new(1, -130, 1, 0)
+content.Position = UDim2.new(0,130,0,0)
+content.BackgroundTransparency = 1
+
+-- Layout sidebar
+local layout = Instance.new("UIListLayout", sidebar)
+layout.Padding = UDim.new(0,5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+title.LayoutOrder = 0
+
+-- Tabs
+local tabs = {}
+
+local function createTab(name)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1,-10,0,35)
+    btn.Position = UDim2.new(0,5,0,0)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    btn.Parent = sidebar
+
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,0,1,0)
+    frame.Visible = false
+    frame.Parent = content
+
+    tabs[name] = frame
+
+    btn.MouseButton1Click:Connect(function()
+        for _,v in pairs(tabs) do
+            v.Visible = false
+        end
+        frame.Visible = true
+    end)
+
+    return frame
+end
+
+-- Toggle
+local function createToggle(parent, text, callback)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0,220,0,40)
+    btn.Position = UDim2.new(0,20,0,20)
+    btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    btn.Text = text .. ": OFF"
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+
+    local state = false
+
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = text .. ": " .. (state and "ON" or "OFF")
+        callback(state)
+    end)
+end
+
+-- Tabs
+local farmTab = createTab("Farm")
+local playerTab = createTab("Player")
+local tpTab = createTab("Teleport")
+
+-- FARM
+createToggle(farmTab, "Auto Farm", function(v)
+    if v then
+        print("Farm ON")
+    else
+        print("Farm OFF")
+    end
+end)
+
+-- PLAYER
+createToggle(playerTab, "Speed", function(v)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+
+    if v then
+        hum.WalkSpeed = 32
+    else
+        hum.WalkSpeed = 16
+    end
+end)
+
+-- TELEPORT
+local tpBtn = Instance.new("TextButton", tpTab)
+tpBtn.Size = UDim2.new(0,220,0,40)
+tpBtn.Position = UDim2.new(0,20,0,20)
+tpBtn.Text = "Teleport Sky"
+tpBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+tpBtn.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner", tpBtn).CornerRadius = UDim.new(0,8)
+
+tpBtn.MouseButton1Click:Connect(function()
+    local char = player.Character or player.CharacterAdded:Wait()
+    char:MoveTo(Vector3.new(0,200,0))
+end)
+
+-- Default tab
+tabs["Farm"].Visible = true
